@@ -12,3 +12,7 @@
 1) pip install package-name
 2) to add to requirements run "pip freeze > requirements.txt"
 
+## info zu jass
+https://www.jassverzeichnis.ch/index.php/erklaerung-zu-den-jasskarten
+
+
