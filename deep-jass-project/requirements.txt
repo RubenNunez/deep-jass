@@ -1,3 +1,6 @@
 certifi==2021.5.30
+setuptools==58.0.4
+flask==2.0.1
 jass-kit==2.0.3
 numpy==1.21.2
+gunicorn==20.1.0
