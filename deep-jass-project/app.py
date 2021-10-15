@@ -24,7 +24,7 @@ def create_app():
 
     # add some players
     result.add_player('random', AgentRandomSchieber())
-    result.add_player('random', AgentGen1())
+    result.add_player('agent_gen_1', AgentGen1())
 
     return result
 
@@ -33,7 +33,7 @@ app = create_app()
 
 
 @app.route("/")
-def hello_world():
+def index():
     return "Gens Player"
 
 
