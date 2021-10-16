@@ -15,7 +15,7 @@ def calculate_trump_selection_score(cards, trump: int) -> int:
     for card in cards:
         suit = int(card / 9)
         exact_card = card % 9
-        print("card=" + str(card) + "; suit=" + str(suit) + "; exact=" + str(exact_card))
+        # print("card=" + str(card) + "; suit=" + str(suit) + "; exact=" + str(exact_card))
         score += trump_score[exact_card] if trump == suit else no_trump_score[exact_card]
 
     return score
