@@ -1,0 +1,63 @@
+from jass.game.game_util import *
+from jass.game.game_sim import GameSim
+from jass.game.game_observation import GameObservation
+from jass.game.const import *
+from jass.game.rule_schieber import RuleSchieber
+from jass.agents.agent import Agent
+from jass.agents.agent_random_schieber import AgentRandomSchieber
+from jass.arena.arena import Arena
+
+from agent_gen1 import AgentGen1
+from agent_gen2 import AgentGen2
+
+
+def local_sim():
+    # create the game
+    rule = RuleSchieber()
+    game = GameSim(rule=rule)
+
+    # create the players
+    agent_old = AgentGen1()
+    agent_new = AgentGen2()
+
+    # deal cards
+    game.init_from_cards(hands=deal_random_hand(), dealer=SOUTH)
+
+    obs = game.get_observation()
+
+    cards = convert_one_hot_encoded_cards_to_str_encoded_list(obs.hand)
+    # print(str(player_strings[obs.player]) + " - " + str(cards))
+
+    # set trump
+    trump = agent_new.action_trump(obs)
+
+    # tell the simulation the selected trump
+    game.action_trump(trump)
+
+    count = 0
+    # play the game to the end and print the result
+    while not game.is_done():
+        obs = game.get_observation()
+        cards = convert_one_hot_encoded_cards_to_str_encoded_list(obs.hand)
+        print(str(player_strings[obs.player]) + " - " + str(cards))
+        if count % 2 == 0:
+            game.action_play_card(agent_new.action_play_card(obs))
+        else:
+            game.action_play_card(agent_old.action_play_card(obs))
+        count += 1
+
+    print("TEAM NEW: NORTH SOUTH: " + str(game.state.points[0]))
+    print("TEAM OLD: EAST WEST: " + str(game.state.points[1]))
+
+
+def local_arena():
+    arena = Arena(nr_games_to_play=1)
+    arena.set_players(AgentGen1(), AgentGen2(), AgentGen1(), AgentGen2())
+    arena.play_all_games()
+    print(arena.points_team_0.sum(), arena.points_team_1.sum())
+
+
+if __name__ == '__main__':
+    #local_sim()
+    local_arena()
+

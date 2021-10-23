@@ -30,14 +30,7 @@ class AgentGen1(Agent):
         self._rule = RuleSchieber()
 
     def action_trump(self, obs: GameObservation) -> int:
-        """
-        Determine trump action for the given observation
-        Args:
-            obs: the game observation, it must be in a state for trump selection
-
-        Returns:
-            selected trump as encoded in jass.game.const or jass.game.const.PUSH
-        """
+        # print(player_strings[obs.player] + " (gen1) - TRUMP")
         # add your code here using the function above
         card_list = convert_one_hot_encoded_cards_to_int_encoded_list(obs.hand)
         threshold = 68
@@ -55,15 +48,10 @@ class AgentGen1(Agent):
             return best_suit
 
     def action_play_card(self, obs: GameObservation) -> int:
-        """
-        Determine the card to play.
-
-        Args:
-            obs: the game observation
-
-        Returns:
-            the card to play, int encoded as defined in jass.game.const
-        """
+        # print(player_strings[obs.player] + " (gen1) - PLAY")
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
+
         # we use the global random number generator here
-        return np.random.choice(np.flatnonzero(valid_cards))
+        card = np.random.choice(np.flatnonzero(valid_cards))
+        # print(player_strings[obs.player] + " " + str(convert_one_hot_encoded_cards_to_str_encoded_list(card)))
+        return card
