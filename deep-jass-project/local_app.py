@@ -9,6 +9,7 @@ from jass.arena.arena import Arena
 
 from agent_gen1 import AgentGen1
 from agent_gen2 import AgentGen2
+from agent_gen3 import AgentGen3
 
 
 def local_sim():
@@ -51,10 +52,17 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=1)
-    arena.set_players(AgentGen1(), AgentGen2(), AgentGen1(), AgentGen2())
+    arena = Arena(nr_games_to_play=100)
+    arena.set_players(AgentGen1(), AgentGen2(), AgentGen1(), AgentGen3())
     arena.play_all_games()
-    print(arena.points_team_0.sum(), arena.points_team_1.sum())
+
+    count = 0
+    for i in range(arena.nr_games_played):
+        if arena.points_team_0[i] > arena.points_team_1[i]:
+            count = count + 1
+
+    print("Team 0 : " + str(arena.points_team_0.sum()) + ": Games won : " + str(count))
+    print("Team 1 : " + str(arena.points_team_1.sum()) + ": Games won : " + str(arena.nr_games_played - count))
 
 
 if __name__ == '__main__':

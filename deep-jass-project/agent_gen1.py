@@ -49,6 +49,7 @@ class AgentGen1(Agent):
 
     def action_play_card(self, obs: GameObservation) -> int:
         # print(player_strings[obs.player] + " (gen1) - PLAY")
+        # print("PLAYER=" + str(obs.player))
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
 
         # we use the global random number generator here
