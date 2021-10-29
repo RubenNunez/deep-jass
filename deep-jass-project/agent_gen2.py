@@ -8,23 +8,24 @@ from jass.game.game_observation import GameObservation
 from jass.game.const import *
 from jass.game.rule_schieber import RuleSchieber
 from jass.agents.agent import Agent
+from agent_helper import get_good_bad
 
 
 # Score for each card of a color from Ace to 6
 
 # score if the color is trump
+# noinspection DuplicatedCode
 trump_score = [15, 10, 7, 25, 6, 19, 5, 5, 5]
 # score if the color is not trump
 no_trump_score = [9, 7, 5, 2, 1, 0, 0, 0, 0]
 # score if obenabe is selected (all colors)
-obenabe_score = [14, 10, 8, 7, 5, 0, 5, 0, 0, ]
+obenabe_score = [14, 10, 8, 7, 5, 0, 5, 0, 0]
 # score if uneufe is selected (all colors)
 uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 
 """
 Backwards Induction Impl
 """
-
 def calculate_trump_selection_score(cards, trump: int) -> int:
     score = 0
 
@@ -94,6 +95,7 @@ class AgentGen2(Agent):
 
         cards_to_distribute_prepared = np.zeros(shape=[3, 36], dtype=np.int32)
 
+        # todo heufigkeit
         for card in cards_to_distribute_indexes:
             cards_to_distribute_prepared[count % 3][card] = 1
             count += 1
@@ -105,9 +107,12 @@ class AgentGen2(Agent):
         # but how? jordan xD
         player_in_turn = self.game_observation.player
         self.main_state.hands[player_in_turn] = cards_in_hand
-        self.main_state.hands[(player_in_turn + 1) % 4] = cards_to_distribute_prepared[0]
-        self.main_state.hands[(player_in_turn + 2) % 4] = cards_to_distribute_prepared[1]
-        self.main_state.hands[(player_in_turn + 3) % 4] = cards_to_distribute_prepared[2]
+        self.main_state.hands[(player_in_turn - 1) % 4] = cards_to_distribute_prepared[0]
+        self.main_state.hands[(player_in_turn - 2) % 4] = cards_to_distribute_prepared[1]
+        self.main_state.hands[(player_in_turn - 3) % 4] = cards_to_distribute_prepared[2]
+
+        #print(str(np.sum(self.main_state.hands[0])) + " : " + str(np.sum(self.main_state.hands[1])) + " : " +
+        #      str(np.sum(self.main_state.hands[2])) + " : " + str(np.sum(self.main_state.hands[3])))
 
         # print(self.main_state.hands)
 
@@ -132,7 +137,11 @@ class AgentGen2(Agent):
             return best_suit
 
     def action_play_card(self, obs: GameObservation) -> int:
+        # todo run method ten times to improve randomness -> heufigkeits-analyse
         # print(player_strings[obs.player] + " (gen2) - PLAY")
+        # print("PLAYER=" + str(obs.player))
+        # print("CURRENT_TRICK=" + str(obs.current_trick))
+
         self.game_observation = copy.deepcopy(obs)
         self.sync_state_obs()
 
@@ -142,20 +151,20 @@ class AgentGen2(Agent):
 
         # root call into recursion
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
-        best_diff = 0
-        best_card = np.random.choice(np.flatnonzero(valid_cards))
+        best_diff = None
+        best_card = None
         depth = 0
 
-        for card, own in enumerate(valid_cards):
-            if own == 0:
-                continue
+        # Check current trick
+        playable_cards = get_good_bad(obs.current_trick, valid_cards, obs.trump)
 
+        for card in playable_cards:
             game = copy.deepcopy(root_game)
             game.action_play_card(card)
             next_obs = game.get_observation()
             points = self.traverse(next_obs, game, depth + 1)
             diff = points[obs.player % 2] - obs.points[(obs.player + 1) % 2]
-            if best_diff <= 0 or diff > best_diff:
+            if best_diff is None or diff > best_diff:
                 best_diff = diff
                 best_card = card
 
@@ -163,22 +172,22 @@ class AgentGen2(Agent):
         return best_card
 
     def traverse(self, _obs: GameObservation, _game: GameSim, _depth: int):
-        if _depth >= 5 or _game.is_done():
+        # todo depth dynamic while game progresses
+        if _depth >= 0 or _game.is_done():  #or np.sum(_obs.current_trick) <= -4:
             return _obs.points
 
         valid_cards = self._rule.get_valid_cards_from_obs(_obs)
-        best_diff = 0
-        best_points = [0, 0]
+        best_diff = None
+        best_points = None
 
-        for card, own in enumerate(valid_cards):
-            if own == 0:
-                continue
+        playable_cards = get_good_bad(_obs.current_trick, valid_cards, _obs.trump)
 
+        for card in playable_cards:
             game = copy.deepcopy(_game)
             game.action_play_card(card)
             next_obs = game.get_observation()
             points = self.traverse(next_obs, game, _depth + 1)
-            diff = points[_obs.player % 2] - _obs.points[(_obs.player + 1) % 2]
+            diff = points[_obs.player % 2] - points[(_obs.player + 1) % 2]
             if best_diff is None or diff > best_diff:
                 best_diff = diff
                 best_points = points
