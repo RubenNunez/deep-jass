@@ -15,7 +15,6 @@ obenabe_score = [14, 10, 8, 7, 5, 0, 5, 0, 0]
 # score if uneufe is selected (all colors)
 uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 
-
 def calculate_trump_selection_score(cards, trump: int) -> int:
     score = 0
 
@@ -48,7 +47,7 @@ def get_best_card(cards, trump):
         if best_card is None or compare_card(card, best_card, trump) > 0:
             best_card = card
     return best_card
-
+    
 def get_good_bad(trick, cards, trump):
     # [best, ..., best_n, worst]
     best_card = None
