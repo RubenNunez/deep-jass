@@ -10,6 +10,7 @@ from jass.arena.arena import Arena
 from agent_gen1 import AgentGen1
 from agent_gen2 import AgentGen2
 from agent_gen3 import AgentGen3
+from agent_gen4 import AgentGen4
 
 
 def local_sim():
@@ -52,8 +53,8 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=100)
-    arena.set_players(AgentGen1(), AgentGen2(), AgentGen1(), AgentGen3())
+    arena = Arena(nr_games_to_play=500)
+    arena.set_players(AgentGen4(), AgentGen1(), AgentGen4(), AgentGen1())
     arena.play_all_games()
 
     count = 0

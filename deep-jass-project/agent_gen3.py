@@ -24,7 +24,7 @@ obenabe_score = [14, 10, 8, 7, 5, 0, 5, 0, 0]
 uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 
 """
-Backwards Induction Impl
+Playes always the best card
 """
 
 # Best Card Agent Implementation

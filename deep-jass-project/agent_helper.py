@@ -2,6 +2,8 @@ import math
 
 import jass.game.const
 from jass.game.game_util import *
+from jass.game.game_observation import GameObservation
+from jass.game.rule_schieber import RuleSchieber
 
 # Score for each card of a color from Ace to 6
 
@@ -26,12 +28,14 @@ def calculate_trump_selection_score(cards, trump: int) -> int:
 
     return score
 
+
 def calculate_obenabe_selection_score(cards) -> int:
     score = 0
     for card in cards:
         exact_card = card % 9
         score += obenabe_score[exact_card]
     return score
+
 
 def calculate_uneufe_selection_score(cards) -> int:
     score = 0
@@ -40,6 +44,7 @@ def calculate_uneufe_selection_score(cards) -> int:
         score += uneufe_score[exact_card]
     return score
 
+
 def get_best_card(cards, trump):
     best_card = None
 
@@ -47,7 +52,8 @@ def get_best_card(cards, trump):
         if best_card is None or compare_card(card, best_card, trump) > 0:
             best_card = card
     return best_card
-    
+
+
 def get_good_bad(trick, cards, trump):
     # [best, ..., best_n, worst]
     best_card = None
@@ -124,3 +130,122 @@ def compare_card(card_a, card_b, trump):
         return -1
     else:
         return 0
+
+
+def get_played_cards(obs: GameObservation):
+    result = np.zeros(shape=[36], dtype=np.int32)
+    for trick in obs.tricks:
+        for card in trick:
+            if card != -1:
+                result[card] = 1
+
+    return result
+
+
+def get_remaining_cards(obs: GameObservation):
+    played_cards = get_played_cards(obs)
+    cards_in_hand = obs.hand
+
+    ones = np.ones(shape=[36], dtype=np.int32)
+    # [1,1,1,1, ..... ,1,1,1] -> with ones
+
+    return ones - (played_cards + cards_in_hand)
+
+
+def get_perfect_card(obs: GameObservation):
+    rule = RuleSchieber()
+    cards_remaining = convert_one_hot_encoded_cards_to_int_encoded_list(get_remaining_cards(obs))
+    cards_in_hand = convert_one_hot_encoded_cards_to_int_encoded_list(rule.get_valid_cards_from_obs(obs))
+
+    for card_in_hand in cards_in_hand:
+        perfect_card = True
+        for card_remaining in cards_remaining:
+            # check if card_remaining is valid
+            if math.floor(card_remaining / 9) != obs.trump and math.floor(card_in_hand / 9) != math.floor(card_remaining / 9):
+                continue
+            if compare_card(card_in_hand, card_remaining, obs.trump) < 0:
+                perfect_card = False
+                break
+        for played_card in obs.current_trick:
+            if played_card == -1:
+                continue
+            # check if card_remaining is valid
+            if math.floor(card_in_hand / 9) != obs.trump and math.floor(card_in_hand / 9) != math.floor(played_card / 9):
+                perfect_card = False
+                break
+            if compare_card(card_in_hand, played_card, obs.trump) < 0:
+                perfect_card = False
+                break
+        if perfect_card:
+            return card_in_hand
+
+    return -1
+
+
+def get_trump_card(obs: GameObservation):
+    rule = RuleSchieber()
+    cards_in_hand = convert_one_hot_encoded_cards_to_int_encoded_list(rule.get_valid_cards_from_obs(obs))
+
+    for card_in_hand in cards_in_hand:
+        if math.floor(card_in_hand / 9) == obs.trump:
+            return card_in_hand
+
+    return -1
+
+
+def get_weakest_color(obs: GameObservation):
+    rule = RuleSchieber()
+    cards_in_hand = convert_one_hot_encoded_cards_to_int_encoded_list(rule.get_valid_cards_from_obs(obs))
+    score_for_each_color = np.zeros(4, np.int32)
+
+    for color in range(4):
+        has_at_least_one_card = False
+        for card_in_hand in cards_in_hand:
+            if math.floor(card_in_hand / 9) == color:
+                score = get_card_score(card_in_hand, obs.trump)
+                score_for_each_color[color] += score
+                has_at_least_one_card = True
+        if not has_at_least_one_card:
+            score_for_each_color[color] += 1000
+
+    return np.argmin(score_for_each_color)
+
+
+def get_weakest_card_of_color(obs: GameObservation, color: int):
+    rule = RuleSchieber()
+    cards_in_hand = convert_one_hot_encoded_cards_to_int_encoded_list(rule.get_valid_cards_from_obs(obs))
+
+    worst_card = None
+
+    for card_in_hand in cards_in_hand:
+        if math.floor(card_in_hand / 9) == color:
+            if worst_card is None or compare_card(card_in_hand, worst_card, color) < 0:
+                worst_card = card_in_hand
+
+    return worst_card
+
+
+# noinspection DuplicatedCode
+def is_perfect_win(obs: GameObservation, card: int):
+    cards_remaining = convert_one_hot_encoded_cards_to_int_encoded_list(get_remaining_cards(obs))
+
+    perfect_card = True
+    for card_remaining in cards_remaining:
+        # check if card_remaining is valid
+        if math.floor(card_remaining / 9) != obs.trump and math.floor(card / 9) != math.floor(card_remaining / 9):
+            continue
+        if compare_card(card, card_remaining, obs.trump) < 0:
+            perfect_card = False
+            break
+    for played_card in obs.current_trick:
+        if played_card == -1:
+            continue
+        # check if card_remaining is valid
+        if math.floor(card / 9) != obs.trump and math.floor(card / 9) != math.floor(played_card / 9):
+            perfect_card = False
+            break
+        if compare_card(card, played_card, obs.trump) < 0:
+            perfect_card = False
+            break
+
+    return perfect_card

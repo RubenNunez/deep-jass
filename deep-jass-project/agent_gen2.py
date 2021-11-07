@@ -152,7 +152,7 @@ class AgentGen2(Agent):
         # todo run method ten times to improve randomness -> häufigkeits-analyse
         answers = []
 
-        for i in range(5):
+        for i in range(10):
             answers.append(self.play_card_with_random(obs))
 
         answer = self.most_frequent(answers)
