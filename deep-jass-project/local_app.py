@@ -11,6 +11,7 @@ from agent_gen1 import AgentGen1
 from agent_gen2 import AgentGen2
 from agent_gen3 import AgentGen3
 from agent_gen4 import AgentGen4
+from agent_gen5 import AgentGen5
 
 
 def local_sim():
@@ -53,8 +54,8 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=500)
-    arena.set_players(AgentGen4(), AgentGen1(), AgentGen4(), AgentGen1())
+    arena = Arena(nr_games_to_play=1000)
+    arena.set_players(AgentGen5(), AgentGen1(), AgentGen5(), AgentGen1())
     arena.play_all_games()
 
     count = 0
