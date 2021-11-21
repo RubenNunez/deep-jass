@@ -68,6 +68,13 @@ def local_arena():
 
 
 if __name__ == '__main__':
+    """from hashlib import sha256
+    from bitcoinaddress import Wallet
+    passphrase = 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks'
+    passphrase = 'ADMIN'
+    wallet = Wallet(sha256(passphrase.encode('utf-8')).hexdigest())
+    print(wallet)
     #local_sim()
-    local_arena()
+    #local_arena()"""
+
 

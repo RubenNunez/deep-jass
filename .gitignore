@@ -1,0 +1,6 @@
+
+
+# ignore data for botebooks
+notebooks/data/*
+
+deep-jass-project/__pycache__/
