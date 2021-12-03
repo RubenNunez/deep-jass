@@ -12,6 +12,7 @@ from agent_gen2 import AgentGen2
 from agent_gen3 import AgentGen3
 from agent_gen4 import AgentGen4
 from agent_gen5 import AgentGen5
+from agent_gen6 import AgentGen6
 
 
 def local_sim():
@@ -54,8 +55,8 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=1000)
-    arena.set_players(AgentGen5(), AgentGen1(), AgentGen5(), AgentGen1())
+    arena = Arena(nr_games_to_play=100)
+    arena.set_players(AgentGen6(), AgentGen5(), AgentGen6(), AgentGen5())
     arena.play_all_games()
 
     count = 0
@@ -68,13 +69,7 @@ def local_arena():
 
 
 if __name__ == '__main__':
-    """from hashlib import sha256
-    from bitcoinaddress import Wallet
-    passphrase = 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks'
-    passphrase = 'ADMIN'
-    wallet = Wallet(sha256(passphrase.encode('utf-8')).hexdigest())
-    print(wallet)
     #local_sim()
-    #local_arena()"""
+    local_arena()
 
 
