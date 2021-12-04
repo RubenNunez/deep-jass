@@ -56,7 +56,7 @@ def local_sim():
 
 def local_arena():
     arena = Arena(nr_games_to_play=1000)
-    arena.set_players(AgentIntelligent(), AgentGen1(), AgentGen5(), AgentGen1())
+    arena.set_players(AgentIntelligent(), AgentGen1(), AgentIntelligent(), AgentGen1())
     arena.play_all_games()
 
     count = 0
