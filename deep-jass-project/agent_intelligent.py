@@ -8,6 +8,7 @@ from jass.game.rule_schieber import RuleSchieber
 from tensorflow import keras
 
 from agent_helper import get_remaining_cards
+from agent_gen6 import AgentGen6
 
 # noinspection DuplicatedCode
 trump_score = [15, 10, 7, 25, 6, 19, 5, 5, 5]
@@ -28,7 +29,7 @@ class AgentIntelligent(Agent):
         if os.path.exists('../notebooks/model/model_current'):
             self.model = keras.models.load_model('../notebooks/model/model_current')
 
-    def calculate_trump_selection_score(cards, trump: int) -> int:
+    def calculate_trump_selection_score(self, cards, trump: int) -> int:
         score = 0
 
         for card in cards:
@@ -53,24 +54,27 @@ class AgentIntelligent(Agent):
         return result
 
     def action_trump(self, obs: GameObservation) -> int:
-        return UNE_UFE
+        return AgentGen6().action_trump(obs)
 
     def action_play_card(self, obs: GameObservation) -> int:
+        from agent_helper import add_COUNT_PREDICTED, add_COUNT_MC
 
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
 
         if self.model is None:
-            return np.random.choice(np.flatnonzero(valid_cards))
+            return AgentGen6().action_play_card(obs)
 
         # Predict action Q-values
         # From environment state
         state_tensor = tf.convert_to_tensor(self.state(obs))
         state_tensor = tf.expand_dims(state_tensor, 0)
         action_probs = self.model(state_tensor, training=False)
-        predicted_card = tf.argmax(action_probs[0]).numpy() # Take best action
+        predicted_card = tf.argmax(action_probs[0]).numpy()  # Take best action
 
         if valid_cards[predicted_card] == 1:
+            add_COUNT_PREDICTED()
             return predicted_card
 
-        return np.random.choice(np.flatnonzero(valid_cards))
+        add_COUNT_MC()
+        return AgentGen6().action_play_card(obs)
 
