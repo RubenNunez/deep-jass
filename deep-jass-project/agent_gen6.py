@@ -135,7 +135,7 @@ class AgentGen6(Agent):
         card_list = obs.hand
         card_list = card_list.astype(bool)
         card_list = np.append(card_list, (obs.player < 1))
-        result = clf.predict(pd.DataFrame([card_list], columns=cards + forehand))
+        result = clf.predict(pd.DataFrame([card_list], columns = cards + forehand))
 
         return {
             'PUSH': PUSH,

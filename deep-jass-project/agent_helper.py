@@ -5,29 +5,7 @@ from jass.game.game_util import *
 from jass.game.game_observation import GameObservation
 from jass.game.rule_schieber import RuleSchieber
 
-
-COUNT_PREDICTED = 0
-COUNT_MC = 0
-
-
-def get_COUNT():
-    return COUNT_PREDICTED, COUNT_MC
-
-def add_COUNT_PREDICTED():
-    global COUNT_PREDICTED
-    COUNT_PREDICTED += 1
-
-
-def add_COUNT_MC():
-    global COUNT_MC
-    COUNT_MC += 1
-
-
-def reset_COUNT():
-    global COUNT_MC
-    global COUNT_PREDICTED
-    COUNT_MC = 0
-    COUNT_PREDICTED = 0
+# Score for each card of a color from Ace to 6
 
 # score if the color is trump
 # noinspection DuplicatedCode
