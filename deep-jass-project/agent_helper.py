@@ -4,11 +4,20 @@ import jass.game.const
 from jass.game.game_util import *
 from jass.game.game_observation import GameObservation
 from jass.game.rule_schieber import RuleSchieber
+import numpy as np
 
 
 COUNT_PREDICTED = 0
 COUNT_MC = 0
+PLAYED_AI_MOVES = np.array(36)
 
+
+def get_PLAYED_MOVES():
+    return PLAYED_AI_MOVES
+
+def set_PLAYED_MOVES(played):
+    global PLAYED_AI_MOVES
+    PLAYED_AI_MOVES = played
 
 def get_COUNT():
     return COUNT_PREDICTED, COUNT_MC
@@ -17,11 +26,9 @@ def add_COUNT_PREDICTED():
     global COUNT_PREDICTED
     COUNT_PREDICTED += 1
 
-
 def add_COUNT_MC():
     global COUNT_MC
     COUNT_MC += 1
-
 
 def reset_COUNT():
     global COUNT_MC

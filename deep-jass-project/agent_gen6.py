@@ -1,4 +1,7 @@
 import copy
+from multiprocessing.pool import ThreadPool as Pool
+import threading
+import concurrent.futures
 
 import numpy as np
 from jass.game.game_sim import GameSim
@@ -147,18 +150,27 @@ class AgentGen6(Agent):
             'DIAMONDS': DIAMONDS
         }[str(result[0])]
 
-    def most_frequent(self, List):
-        return max(set(List), key=List.count)
+    def most_frequent(self, cards):
+        return max(set(cards), key=cards.count)
+
+    executor = concurrent.futures.ProcessPoolExecutor(15)
 
     def action_play_card(self, obs: GameObservation) -> int:
         answers = []
 
-        for i in range(5):
-            answers.append(self.play_card_with_random(obs))
+        futures = [self.executor.submit(self.djnfjsdnf, obs) for _ in range(15)]
+        concurrent.futures.wait(futures)
+
+        for future in futures:
+            answers.append(future.result())
 
         answer = self.most_frequent(answers)
 
         return answer
+
+    def djnfjsdnf(self, obs):
+        # print(str(threading.get_ident()) + " i'm a Thread Roger Diehl!")
+        return self.play_card_with_random(obs)
 
     def play_card_with_random(self, obs: GameObservation) -> int:
         self.game_observation = copy.deepcopy(obs)

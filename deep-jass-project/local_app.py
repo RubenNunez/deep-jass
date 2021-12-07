@@ -62,8 +62,8 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=100)
-    arena.set_players(AgentIntelligent(), AgentGen1(), AgentIntelligent(), AgentGen1())
+    arena = Arena(nr_games_to_play=2000)
+    arena.set_players(AgentGen6(), AgentGen1(), AgentGen1(), AgentGen1())
     arena.play_all_games()
 
     count = 0
@@ -76,9 +76,11 @@ def local_arena():
 
 
 if __name__ == '__main__':
-    from agent_helper import get_COUNT
+    from agent_helper import get_COUNT, get_PLAYED_MOVES
 
     local_arena()
+
+    get_PLAYED_MOVES()
     predicted, mc_moves = get_COUNT()
     print("____________")
     print("Total moves: " + str(predicted + mc_moves))

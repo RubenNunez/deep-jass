@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import tensorflow as tf
 from jass.agents.agent import Agent
@@ -9,6 +10,7 @@ from tensorflow import keras
 
 from agent_helper import get_remaining_cards
 from agent_gen6 import AgentGen6
+from agent_gen1 import AgentGen1
 
 # noinspection DuplicatedCode
 trump_score = [15, 10, 7, 25, 6, 19, 5, 5, 5]
@@ -54,27 +56,35 @@ class AgentIntelligent(Agent):
         return result
 
     def action_trump(self, obs: GameObservation) -> int:
-        return AgentGen6().action_trump(obs)
+        return AgentGen1().action_trump(obs)
 
     def action_play_card(self, obs: GameObservation) -> int:
-        from agent_helper import add_COUNT_PREDICTED, add_COUNT_MC
+        from agent_helper import add_COUNT_PREDICTED, add_COUNT_MC, get_PLAYED_MOVES, set_PLAYED_MOVES
 
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
 
         if self.model is None:
-            return AgentGen6().action_play_card(obs)
+            return np.random.choice(np.flatnonzero(valid_cards))  # AgentGen6().action_play_card(obs)
 
         # Predict action Q-values
         # From environment state
         state_tensor = tf.convert_to_tensor(self.state(obs))
         state_tensor = tf.expand_dims(state_tensor, 0)
         action_probs = self.model(state_tensor, training=False)
-        predicted_card = tf.argmax(action_probs[0]).numpy()  # Take best action
+        mask = tf.convert_to_tensor(valid_cards, dtype='float32', dtype_hint=None, name=None)
+
+        tensor = tf.convert_to_tensor(np.ones(36) * 1000, dtype='float32')
+        mask = tf.multiply(mask, tensor)
+        predicted_tensor = tf.add(action_probs[0], mask)
+        predicted_card = tf.argmax(predicted_tensor).numpy()  # Take best action
 
         if valid_cards[predicted_card] == 1:
+            played_moves = get_PLAYED_MOVES()
+            played_moves[predicted_card] += 1
+            set_PLAYED_MOVES(played_moves)
             add_COUNT_PREDICTED()
             return predicted_card
 
         add_COUNT_MC()
-        return AgentGen6().action_play_card(obs)
+        return np.random.choice(np.flatnonzero(valid_cards)) #AgentGen6().action_play_card(obs)
 
