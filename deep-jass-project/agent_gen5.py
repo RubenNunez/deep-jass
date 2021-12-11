@@ -10,6 +10,9 @@ from jass.game.rule_schieber import RuleSchieber
 from jass.agents.agent import Agent
 from agent_helper import get_good_bad, calculate_uneufe_selection_score, calculate_obenabe_selection_score
 from agent_gen1 import AgentGen1
+from multiprocessing.pool import ThreadPool as Pool
+import threading
+import concurrent.futures
 
 # Score for each card of a color from Ace to 6
 
@@ -44,6 +47,8 @@ def calculate_trump_selection_score(cards, trump: int) -> int:
 class AgentGen5(Agent):
     main_state = GameState()
     game_observation = GameObservation()
+    executor = concurrent.futures.ProcessPoolExecutor(5)
+    card_values_executor = concurrent.futures.ProcessPoolExecutor(30)
 
     def __init__(self):
         super().__init__()
@@ -145,8 +150,11 @@ class AgentGen5(Agent):
     def action_play_card(self, obs: GameObservation) -> int:
         answers = []
 
-        for i in range(5):
-            answers.append(self.play_card_with_random(obs))
+        futures = [self.executor.submit(self.play_card_with_random, obs) for _ in range(30)]
+        concurrent.futures.wait(futures)
+
+        for future in futures:
+            answers.append(future.result())
 
         answer = self.most_frequent(answers)
 
@@ -165,20 +173,34 @@ class AgentGen5(Agent):
         best_diff = None
         best_card = None
 
+        cards = []
+        future_cards = {}
+
         for card in valid_cards:
-            game = copy.deepcopy(root_game)
-            game.action_play_card(card)
-            next_obs = game.get_observation()
-            points = self.traverse(next_obs, game, 0)
-            diff = points[obs.player % 2] - obs.points[(obs.player + 1) % 2]
+            future = self.card_values_executor.submit(self.get_card_value, card, root_game, obs)
+            future_cards[future] = card
+            cards.append(future)
+
+        concurrent.futures.wait(cards)
+        for future in cards:
+            card = future_cards[future]
+            diff = future.result()
             if best_diff is None or diff > best_diff:
                 best_diff = diff
                 best_card = card
 
         return best_card
 
+    def get_card_value(self, card: int, _root_game: GameSim, _obs: GameObservation):
+        game = copy.deepcopy(_root_game)
+        game.action_play_card(card)
+        next_obs = game.get_observation()
+        points = self.traverse(next_obs, game, 0)
+        diff = points[_obs.player % 2] - _obs.points[(_obs.player + 1) % 2]
+        return diff
+
     def traverse(self, _obs: GameObservation, _game: GameSim, _depth: int):
-        if _game.is_done() or _depth > 5:
+        if _game.is_done() or _depth > 25:
             return _obs.points
 
         valid_cards = self._rule.get_valid_cards_from_obs(_obs)

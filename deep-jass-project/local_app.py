@@ -12,7 +12,7 @@ from agent_gen2 import AgentGen2
 from agent_gen3 import AgentGen3
 from agent_gen4 import AgentGen4
 from agent_gen5 import AgentGen5
-from agent_intelligent import AgentIntelligent
+# from agent_intelligent import AgentIntelligent
 
 
 def local_sim():
@@ -22,7 +22,7 @@ def local_sim():
 
     # create the players
     agent_old = AgentGen1()
-    agent_new = AgentGen2()
+    agent_new = AgentGen5()
 
     # deal cards
     game.init_from_cards(hands=deal_random_hand(), dealer=SOUTH)
@@ -55,8 +55,8 @@ def local_sim():
 
 
 def local_arena():
-    arena = Arena(nr_games_to_play=1000)
-    arena.set_players(AgentIntelligent(), AgentGen1(), AgentIntelligent(), AgentGen1())
+    arena = Arena(nr_games_to_play=100)
+    arena.set_players(AgentGen5(), AgentGen1(), AgentGen5(), AgentGen1())
     arena.play_all_games()
 
     count = 0
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     wallet = Wallet(sha256(passphrase.encode('utf-8')).hexdigest())
     print(wallet)
     #local_sim()"""
+    #local_sim()
     local_arena()
 
 
