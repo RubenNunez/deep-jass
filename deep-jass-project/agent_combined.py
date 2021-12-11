@@ -36,6 +36,11 @@ class AgentCombinedOne(Agent):
     def action_play_card(self, obs: GameObservation) -> int:
         return self.agent5.action_play_card(obs)
 
+#_____________________________________________________#
+#                                                     #
+#                    Versus                           #
+#                                                     #
+#_____________________________________________________#
 
 class AgentCombinedTwo(Agent):
     agent5 = AgentGen5()
