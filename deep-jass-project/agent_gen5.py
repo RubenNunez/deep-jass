@@ -200,7 +200,7 @@ class AgentGen5(Agent):
         return diff
 
     def traverse(self, _obs: GameObservation, _game: GameSim, _depth: int):
-        if _game.is_done() or _depth > 25:
+        if _game.is_done() or _depth > 5:
             return _obs.points
 
         valid_cards = self._rule.get_valid_cards_from_obs(_obs)
@@ -209,3 +209,4 @@ class AgentGen5(Agent):
         next_obs = _game.get_observation()
 
         return self.traverse(next_obs, _game, _depth + 1)
+

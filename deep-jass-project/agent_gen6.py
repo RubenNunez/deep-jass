@@ -31,6 +31,8 @@ uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 """
 Optimize against random
 """
+
+
 def calculate_trump_selection_score(cards, trump: int) -> int:
     score = 0
 
@@ -135,17 +137,17 @@ class AgentGen6(Agent):
         card_list = obs.hand
         card_list = card_list.astype(bool)
         card_list = np.append(card_list, (obs.player < 1))
-        result = clf.predict(pd.DataFrame([card_list], columns = cards + forehand))
+        # result = clf.predict(pd.DataFrame([card_list], columns=cards + forehand))
 
-        return {
-            'PUSH': PUSH,
-            'UNE_UFE': UNE_UFE,
-            'OBE_ABE': OBE_ABE,
-            'CLUBS': CLUBS,
-            'SPADES': SPADES,
-            'HEARTS': HEARTS,
-            'DIAMONDS': DIAMONDS
-        }[str(result[0])]
+        probs = clf.predict_proba(pd.DataFrame([card_list], columns=cards + forehand))
+        top2 = (np.argsort(probs, axis=1)[:, -2:])
+
+        trump_model_map = {0: CLUBS, 1: DIAMONDS, 2: HEARTS, 3: OBE_ABE, 4: PUSH, 5: SPADES, 6: UNE_UFE}
+
+        if obs.forehand == -1 and trump_model_map[top2[0][1]] == PUSH:
+            return trump_model_map[top2[0][0]]  # zweitbeste wahl
+
+        return trump_model_map[top2[0][1]]  # beste wahl
 
     def most_frequent(self, List):
         return max(set(List), key=List.count)
