@@ -31,17 +31,6 @@ class AgentIntelligent(Agent):
         if os.path.exists('../notebooks/model/model_current'):
             self.model = keras.models.load_model('../notebooks/model/model_current')
 
-    def calculate_trump_selection_score(self, cards, trump: int) -> int:
-        score = 0
-
-        for card in cards:
-            suit = int(card / 9)
-            exact_card = card % 9
-            # print("card=" + str(card) + "; suit=" + str(suit) + "; exact=" + str(exact_card))
-            score += trump_score[exact_card] if trump == suit else no_trump_score[exact_card]
-
-        return score
-
     def state(self, obs):
         if obs.current_trick is None:
             obs.current_trick = np.array([-1, -1, -1, -1])
@@ -56,7 +45,7 @@ class AgentIntelligent(Agent):
         return result
 
     def action_trump(self, obs: GameObservation) -> int:
-        return AgentGen1().action_trump(obs)
+        return AgentGen6().action_trump(obs)
 
     def action_play_card(self, obs: GameObservation) -> int:
         from agent_helper import add_COUNT_PREDICTED, add_COUNT_MC, get_PLAYED_MOVES, set_PLAYED_MOVES
@@ -78,10 +67,9 @@ class AgentIntelligent(Agent):
         predicted_tensor = tf.add(action_probs[0], mask)
         predicted_card = tf.argmax(predicted_tensor).numpy()  # Take best action
 
+        predicted_card = tf.argmax(action_probs[0]).numpy()  # Take best action
+
         if valid_cards[predicted_card] == 1:
-            played_moves = get_PLAYED_MOVES()
-            played_moves[predicted_card] += 1
-            set_PLAYED_MOVES(played_moves)
             add_COUNT_PREDICTED()
             return predicted_card
 

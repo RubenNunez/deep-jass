@@ -10,7 +10,6 @@ from jass.game.rule_schieber import RuleSchieber
 from jass.agents.agent import Agent
 from agent_helper import *
 
-
 # Score for each card of a color from Ace to 6
 
 # score if the color is trump
@@ -26,6 +25,7 @@ uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 """
 Playes always the best card
 """
+
 
 # Best Card Agent Implementation
 # by Jordan Suter & Ruben Nunez

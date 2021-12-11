@@ -10,7 +10,6 @@ from jass.game.rule_schieber import RuleSchieber
 from jass.agents.agent import Agent
 from agent_helper import *
 
-
 # Score for each card of a color from Ace to 6
 
 # score if the color is trump
@@ -27,7 +26,8 @@ uneufe_score = [0, 2, 1, 1, 5, 5, 7, 9, 11]
 Rulebased Impl
 """
 
-# Rulebased Agent Implementation
+
+# Rule Based Agent Implementation
 # by Jordan Suter & Ruben Nunez
 # noinspection DuplicatedCode
 class AgentGen4(Agent):
@@ -124,4 +124,3 @@ class AgentGen4(Agent):
 
         assert the_card_to_be_played in valid_cards_encoded
         return the_card_to_be_played
-

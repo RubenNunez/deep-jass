@@ -46,7 +46,7 @@ def calculate_trump_selection_score(cards, trump: int) -> int:
     return score
 
 
-# Optimize against random Agent Implementation
+# MCTS Supervised Trump Edition
 # by Jordan Suter & Ruben Nunez
 # noinspection DuplicatedCode
 class AgentGen6(Agent):

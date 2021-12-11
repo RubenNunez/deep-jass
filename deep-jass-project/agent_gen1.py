@@ -21,7 +21,7 @@ def calculate_trump_selection_score(cards, trump: int) -> int:
     return score
 
 
-# Frist Agent Implementation
+# First Agent Implementation
 # by Jordan Suter & Ruben Nunez
 class AgentGen1(Agent):
     def __init__(self):
