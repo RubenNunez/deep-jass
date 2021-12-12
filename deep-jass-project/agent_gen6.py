@@ -160,7 +160,7 @@ class AgentGen6(Agent):
     def action_play_card(self, obs: GameObservation) -> int:
         answers = []
 
-        futures = [self.executor.submit(self.djnfjsdnf, obs) for _ in range(15)]
+        futures = [self.executor.submit(self.play, obs) for _ in range(15)]
         concurrent.futures.wait(futures)
 
         for future in futures:
@@ -170,7 +170,7 @@ class AgentGen6(Agent):
 
         return answer
 
-    def djnfjsdnf(self, obs):
+    def play(self, obs):
         # print(str(threading.get_ident()) + " i'm a Thread Roger Diehl!")
         return self.play_card_with_random(obs)
 

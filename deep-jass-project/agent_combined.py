@@ -23,26 +23,7 @@ from agent_gen5 import AgentGen5
 from agent_gen6 import AgentGen6
 
 
-class AgentCombinedOne(Agent):
-    agent5 = AgentGen5()
-    agent6 = AgentGen6()
-
-    def __init__(self):
-        super().__init__()
-
-    def action_trump(self, obs: GameObservation) -> int:
-        return self.agent5.action_trump(obs)
-
-    def action_play_card(self, obs: GameObservation) -> int:
-        return self.agent5.action_play_card(obs)
-
-#_____________________________________________________#
-#                                                     #
-#                    Versus                           #
-#                                                     #
-#_____________________________________________________#
-
-class AgentCombinedTwo(Agent):
+class AgentFinal(Agent):
     agent5 = AgentGen5()
     agent6 = AgentGen6()
 
@@ -54,4 +35,40 @@ class AgentCombinedTwo(Agent):
 
     def action_play_card(self, obs: GameObservation) -> int:
         return self.agent5.action_play_card(obs)
+
+
+class AgentCombinedOne(Agent):
+    agent1 = AgentGen1()
+    agent5 = AgentGen5()
+    agent6 = AgentGen6()
+
+    def __init__(self):
+        super().__init__()
+
+    def action_trump(self, obs: GameObservation) -> int:
+        return self.agent1.action_trump(obs)
+
+    def action_play_card(self, obs: GameObservation) -> int:
+        return self.agent1.action_play_card(obs)
+
+#_____________________________________________________#
+#                                                     #
+#                    Versus                           #
+#                                                     #
+#_____________________________________________________#
+
+
+class AgentCombinedTwo(Agent):
+    agent1 = AgentGen1()
+    agent5 = AgentGen5()
+    agent6 = AgentGen6()
+
+    def __init__(self):
+        super().__init__()
+
+    def action_trump(self, obs: GameObservation) -> int:
+        return self.agent6.action_trump(obs)
+
+    def action_play_card(self, obs: GameObservation) -> int:
+        return self.agent1.action_play_card(obs)
 

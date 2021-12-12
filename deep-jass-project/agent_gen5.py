@@ -48,7 +48,7 @@ class AgentGen5(Agent):
     main_state = GameState()
     game_observation = GameObservation()
     executor = concurrent.futures.ProcessPoolExecutor(5)
-    card_values_executor = concurrent.futures.ProcessPoolExecutor(30)
+    card_values_executor = concurrent.futures.ProcessPoolExecutor(5)
 
     def __init__(self):
         super().__init__()
@@ -150,7 +150,7 @@ class AgentGen5(Agent):
     def action_play_card(self, obs: GameObservation) -> int:
         answers = []
 
-        futures = [self.executor.submit(self.play_card_with_random, obs) for _ in range(30)]
+        futures = [self.executor.submit(self.play_card_with_random, obs) for _ in range(15)]
         concurrent.futures.wait(futures)
 
         for future in futures:
@@ -200,7 +200,7 @@ class AgentGen5(Agent):
         return diff
 
     def traverse(self, _obs: GameObservation, _game: GameSim, _depth: int):
-        if _game.is_done() or _depth > 5:
+        if _game.is_done() or _depth > 10:
             return _obs.points
 
         valid_cards = self._rule.get_valid_cards_from_obs(_obs)

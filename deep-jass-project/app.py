@@ -8,6 +8,8 @@ from agent_gen2 import AgentGen2
 from agent_gen3 import AgentGen3
 from agent_gen4 import AgentGen4
 from agent_gen5 import AgentGen5
+from agent_gen6 import AgentGen6
+from agent_combined import AgentFinal
 
 
 def create_app():
@@ -33,6 +35,9 @@ def create_app():
     result.add_player('agent_gen_3', AgentGen3())
     result.add_player('agent_gen_4', AgentGen4())
     result.add_player('agent_gen_5', AgentGen5())
+    result.add_player('agent_gen_6', AgentGen6())
+
+    result.add_player('agent_final', AgentFinal())
 
     return result
 

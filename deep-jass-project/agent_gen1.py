@@ -30,9 +30,11 @@ class AgentGen1(Agent):
         self._rule = RuleSchieber()
 
     def action_trump(self, obs: GameObservation) -> int:
-        # print(player_strings[obs.player] + " (gen1) - TRUMP")
-        # add your code here using the function above
         card_list = convert_one_hot_encoded_cards_to_int_encoded_list(obs.hand)
+
+        trumps = [OBE_ABE, UNE_UFE, CLUBS, DIAMONDS, SPADES, HEARTS]
+        return np.random.choice(trumps)
+
         threshold = 68
         scores = [0, 0, 0, 0]
         for suit in range(0, 4):
