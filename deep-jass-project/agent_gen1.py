@@ -32,8 +32,8 @@ class AgentGen1(Agent):
     def action_trump(self, obs: GameObservation) -> int:
         card_list = convert_one_hot_encoded_cards_to_int_encoded_list(obs.hand)
 
-        trumps = [OBE_ABE, UNE_UFE, CLUBS, DIAMONDS, SPADES, HEARTS]
-        return np.random.choice(trumps)
+        # trumps = [OBE_ABE, UNE_UFE, CLUBS, DIAMONDS, SPADES, HEARTS]
+        # return np.random.choice(trumps)
 
         threshold = 68
         scores = [0, 0, 0, 0]

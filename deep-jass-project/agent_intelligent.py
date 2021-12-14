@@ -6,6 +6,9 @@ from jass.game.game_observation import GameObservation
 from jass.game.game_util import *
 from jass.game.rule_schieber import RuleSchieber
 from tensorflow import keras
+from joblib import load
+import numpy as np
+import pandas as pd
 
 from agent_helper import get_remaining_cards
 
@@ -55,32 +58,37 @@ class AgentIntelligent(Agent):
         return result
 
     def action_trump(self, obs: GameObservation) -> int:
-        # print(player_strings[obs.player] + " (gen1) - TRUMP")
-        # add your code here using the function above
-        card_list = convert_one_hot_encoded_cards_to_int_encoded_list(obs.hand)
-        threshold = 68
-        scores = [0, 0, 0, 0]
-        for suit in range(0, 4):
-            trump_score = calculate_trump_selection_score(card_list, suit)
-            scores[suit] = trump_score
 
-        best_score = max(scores)
-        best_suit = scores.index(best_score)
+        cards = [
+            'DA', 'DK', 'DQ', 'DJ', 'D10', 'D9', 'D8', 'D7', 'D6',  # Diamonds
+            'HA', 'HK', 'HQ', 'HJ', 'H10', 'H9', 'H8', 'H7', 'H6',  # Hearts
+            'SA', 'SK', 'SQ', 'SJ', 'S10', 'S9', 'S8', 'S7', 'S6',  # Spades
+            'CA', 'CK', 'CQ', 'CJ', 'C10', 'C9', 'C8', 'C7', 'C6'  # Clubs
+        ]
 
-        if best_score <= threshold and obs.player < 1:
-            return PUSH
-        else:
-            return best_suit
+        forehand = ['FH']
+
+        clf = load('models/trained_trumper.joblib')
+        card_list = obs.hand
+        card_list = card_list.astype(bool)
+        card_list = np.append(card_list, (obs.player < 1))
+
+        probs = clf.predict_proba(pd.DataFrame([card_list], columns=cards + forehand))
+        top2 = (np.argsort(probs, axis=1)[:, -2:])
+
+        trump_model_map = {0: CLUBS, 1: DIAMONDS, 2: HEARTS, 3: OBE_ABE, 4: PUSH, 5: SPADES, 6: UNE_UFE}
+
+        if obs.forehand == -1 and trump_model_map[top2[0][1]] == PUSH:
+            return trump_model_map[top2[0][0]]  # second choice
+
+        return trump_model_map[top2[0][1]]  # best choice
 
     def action_play_card(self, obs: GameObservation) -> int:
-
         valid_cards = self._rule.get_valid_cards_from_obs(obs)
 
         if self.model is None:
             return np.random.choice(np.flatnonzero(valid_cards))
 
-        # Predict action Q-values
-        # From environment state
         state_tensor = tf.convert_to_tensor(self.state(obs))
         state_tensor = tf.expand_dims(state_tensor, 0)
         action_probs = self.model(state_tensor, training=False)
