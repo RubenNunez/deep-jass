@@ -1,6 +1,7 @@
 import logging
 import os
 
+from jass.arena.arena import Arena
 from jass.service.player_service_app import PlayerServiceApp
 from jass.agents.agent_random_schieber import AgentRandomSchieber
 from agent_gen1 import AgentGen1
@@ -10,6 +11,7 @@ from agent_gen4 import AgentGen4
 from agent_gen5 import AgentGen5
 from agent_gen6 import AgentGen6
 from agent_combined import AgentFinal
+from agent_intelligent import AgentIntelligent
 
 
 def create_app():
@@ -50,6 +52,25 @@ def index():
     return "<h1>deep JASS Players!!</h1>"
 
 
+@app.route("/test_app")
+def test_app():
+    try:
+        arena = Arena(nr_games_to_play=10)
+        arena.set_players(AgentFinal(), AgentIntelligent(), AgentFinal(), AgentIntelligent())
+        arena.play_all_games()
+
+        count = 0
+        for i in range(arena.nr_games_played):
+            if arena.points_team_0[i] > arena.points_team_1[i]:
+                count = count + 1
+
+        return ("Team 0 : " + str(arena.points_team_0.sum()) + ": Games won : " + str(count)) \
+            + ("; Team 1 : " + str(arena.points_team_1.sum()) + ": Games won : " + str(
+                arena.nr_games_played - count))
+    except Exception as e:
+        return str(e)
+
+
 if __name__ == '__main__':
     # port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host='0.0.0.0')  # , port=5000)
+    app.run(debug=True, host='0.0.0.0')  #, port=5080)
